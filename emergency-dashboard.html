@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard</title>
+<style>
+body{margin:0;font-family:'Segoe UI';background:#f1faee}
+header{background:#1d3557;color:white;padding:15px 5%;display:flex;justify-content:space-between;align-items:center}
+header button{background:#e63946;color:white;border:none;padding:8px 15px;border-radius:6px;cursor:pointer}
+.container{padding:20px 5%}
+table{width:100%;border-collapse:collapse;background:white;border-radius:10px;overflow:hidden;box-shadow:0 4px 10px rgba(0,0,0,0.1)}
+th,td{padding:12px;text-align:left;border-bottom:1px solid #ddd;font-size:14px}
+th{background:#1d3557;color:white}
+.delete-btn{background:#e63946;color:white;border:none;padding:5px 10px;border-radius:5px;cursor:pointer}
+</style>
+</head>
+<body>
+<header>
+<div style="font-weight:bold">Admin Dashboard - 101 & 102</div>
+<button onclick="logout()">Logout</button>
+</header>
+<div class="container">
+<h2>📋 Emergency Reports</h2>
+<p>Total Reports: <span id="count">0</span></p>
+<table>
+<thead><tr><th>Name</th><th>Phone</th><th>Type</th><th>Location</th><th>Description</th><th>Time</th><th>Action</th></tr></thead>
+<tbody id="reportTable"></tbody>
+</table>
+</div>
+<script>
+if(localStorage.getItem('adminLogged')!=='yes'){ window.location.href='emergency-login.html'; }
+
+function loadReports(){
+let reports = JSON.parse(localStorage.getItem('reports') || '[]');
+
+// FIRST TIME ku Reena data auto add pannuvom
+if(reports.length === 0){
+reports = [
+{name:'reena', phone:'6379784496', type:'Medical', location:'theni mainroad', desc:'accident', time: new Date().toLocaleString()}
+];
+localStorage.setItem('reports', JSON.stringify(reports));
+}
+
+document.getElementById('count').innerText = reports.length;
+let table = document.getElementById('reportTable');
+table.innerHTML = '';
+reports.forEach((r,i)=>{
+table.innerHTML += `<tr><td>${r.name}</td><td>${r.phone}</td><td>${r.type}</td><td>${r.location}</td><td>${r.desc}</td><td>${r.time}</td><td><button class="delete-btn" onclick="deleteReport(${i})">Delete</button></td></tr>`;
+});
+}
+function deleteReport(i){
+let reports = JSON.parse(localStorage.getItem('reports') || '[]');
+reports.splice(i,1);
+localStorage.setItem('reports', JSON.stringify(reports));
+loadReports();
+}
+function logout(){ localStorage.removeItem('adminLogged'); window.location.href='emergency-home.html'; }
+loadReports();
+</script>
+</body>
+</html>

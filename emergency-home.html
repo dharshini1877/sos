@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emergency Help</title>
+<style>
+body{margin:0;font-family:'Segoe UI';background:#f1faee}
+header{background:#1d3557;color:white;padding:15px 5%;display:flex;justify-content:space-between;align-items:center}
+header a{color:white;text-decoration:none;background:#e63946;padding:8px 15px;border-radius:6px}
+.container{padding:20px 5%;max-width:600px;margin:auto}
+.card{background:white;padding:20px;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,0.1);margin-bottom:20px}
+input,textarea,select{width:100%;padding:12px;margin:8px 0;border:1px solid #ccc;border-radius:8px;box-sizing:border-box}
+button.submit{width:100%;background:#1d3557;color:white;padding:12px;border:none;border-radius:8px;cursor:pointer;font-size:16px;font-weight:bold}
+button.sos{width:100%;background:#e63946;color:white;padding:15px;border:none;border-radius:10px;cursor:pointer;font-size:18px;font-weight:bold;margin-top:10px}
+.loc-btn{background:#457b9d;color:white;border:none;padding:6px 12px;border-radius:5px;cursor:pointer;font-size:12px;margin-bottom:5px}
+</style>
+</head>
+<body>
+<header>
+<div style="font-weight:bold">🚨 Emergency Reporting System</div>
+<a href="emergency-login.html">Admin Login</a>
+</header>
+
+<div class="container">
+<div class="card">
+<h2>Report Emergency</h2>
+<input type="text" id="name" placeholder="Your Name">
+<input type="text" id="phone" placeholder="Phone Number">
+<select id="type">
+<option>Medical</option>
+<option>Fire</option>
+<option>Accident</option>
+<option>Other</option>
+</select>
+
+<label style="font-size:13px;font-weight:bold">Location:</label>
+<button class="loc-btn" onclick="getLocation()">📍 Get My Live Location</button>
+<input type="text" id="location" placeholder="Click above button to get location">
+
+<textarea id="desc" placeholder="Description"></textarea>
+<button class="submit" onclick="submitReport()">Submit Report to Admin</button>
+<p id="msg" style="color:green;text-align:center"></p>
+</div>
+
+<div class="card" style="text-align:center;background:#fff0f0">
+<h3>Are you in Danger?</h3>
+<p>Press SOS to send your live location to Admin immediately!</p>
+<button class="sos" onclick="sendSOS()">🆘 SOS EMERGENCY</button>
+<p id="sosMsg" style="color:red"></p>
+</div>
+</div>
+
+<script>
+let currentLocationText = "";
+
+function getLocation(){
+let locInput = document.getElementById('location');
+locInput.value = "Getting location...";
+if(navigator.geolocation){
+navigator.geolocation.getCurrentPosition((pos)=>{
+let lat = pos.coords.latitude;
+let lon = pos.coords.longitude;
+currentLocationText = `Lat: ${lat.toFixed(5)}, Lon: ${lon.toFixed(5)} - https://www.google.com/maps?q=${lat},${lon}`;
+locInput.value = currentLocationText;
+},()=>{
+locInput.value = "Location failed, please type theni mainroad";
+});
+}else{
+locInput.value = "Geolocation not supported";
+}
+}
+
+function submitReport(){
+let reports = JSON.parse(localStorage.getItem('reports') || '[]');
+let newReport = {
+name: document.getElementById('name').value || 'reena',
+phone: document.getElementById('phone').value || '6379784496',
+type: document.getElementById('type').value,
+location: document.getElementById('location').value || 'theni mainroad',
+desc: document.getElementById('desc').value || 'accident',
+time: new Date().toLocaleString()
+};
+reports.push(newReport);
+localStorage.setItem('reports', JSON.stringify(reports));
+document.getElementById('msg').innerText = "Report Sent Successfully to Admin 101 & 102!";
+document.getElementById('name').value=''; document.getElementById('phone').value=''; document.getElementById('location').value=''; document.getElementById('desc').value='';
+}
+
+function sendSOS(){
+if(navigator.geolocation){
+navigator.geolocation.getCurrentPosition((pos)=>{
+let lat = pos.coords.latitude;
+let lon = pos.coords.longitude;
+let sosLocation = `Live SOS: https://www.google.com/maps?q=${lat},${lon} (Lat:${lat.toFixed(4)}, Lon:${lon.toFixed(4)})`;
+let reports = JSON.parse(localStorage.getItem('reports') || '[]');
+reports.push({name:'SOS USER', phone:'SOS', type:'SOS EMERGENCY', location: sosLocation, desc:'SOS Button Pressed - Need Immediate Help!', time: new Date().toLocaleString()});
+localStorage.setItem('reports', JSON.stringify(reports));
+document.getElementById('sosMsg').innerText = "SOS Sent with Live Location!";
+},()=>{
+document.getElementById('sosMsg').innerText = "Allow location permission!";
+});
+}
+}
+</script>
+</body>
+</html>
